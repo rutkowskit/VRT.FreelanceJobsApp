@@ -1,0 +1,146 @@
+﻿<Window
+    x:Class="VRT.FreelanceJobs.Wpf.MainWindow"
+    x:Name="_mainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls1="clr-namespace:VRT.FreelanceJobs.Wpf.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Useme.Clients.Wpf"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Width="1200"
+    Height="850"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance Type=local:MainWindowViewModel}"
+    FontSize="18"
+    Loaded="OnWindowLoaded"
+    Title="Freelance Jobs"
+    WindowStartupLocation="CenterScreen">
+    <Grid Background="{StaticResource MaterialDesignBackground}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <materialDesign:ColorZone
+            Background="{StaticResource MaterialDesignBackground}"
+            CornerRadius="10"
+            Foreground="White"
+            materialDesign:ElevationAssist.Elevation="Dp4"
+            Mode="PrimaryDark"
+            Padding="0">
+            <ToolBarTray>
+                <ToolBar ClipToBounds="False" Style="{StaticResource MaterialDesignToolBar}">
+                    <TextBlock
+                        Margin="5,0, 26, 0"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource MaterialDesignHeadline4TextBlock}"
+                        Text="Freelance Job Seeker" />
+                    <Separator />
+                    <materialDesign:Badged
+                        Badge="{Binding NewJobsCount}"
+                        BadgeBackground="LawnGreen"
+                        BadgePlacementMode="Right"
+                        ClipToBounds="False"
+                        CornerRadius="50"
+                        ToolBar.OverflowMode="Never">
+                        <Button
+                            Command="{Binding GetJobsFromServicesCommand}"
+                            Content="{materialDesign:PackIcon Kind=CloudArrowDown}"
+                            Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                            ToolTip="Get New Jobs" />
+                    </materialDesign:Badged>
+                    <Button
+                        Command="{Binding GetJobsFromServicesCancelCommand}"
+                        Content="{materialDesign:PackIcon Kind=Cancel}"
+                        Foreground="WhiteSmoke"
+                        ToolTip="Cancel">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Style.Triggers>
+                                    <DataTrigger Value="False" Binding="{Binding JobsDownloading }">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Separator />
+                    <materialDesign:Badged
+                        Badge="{Binding UpdatedJobsCount}"
+                        BadgeBackground="Orange"
+                        BadgePlacementMode="Right"
+                        ClipToBounds="False"
+                        CornerRadius="50"
+                        ToolBar.OverflowMode="Never">
+                        <Button
+                            x:Name="uxUpdateAllJobsCancel"
+                            Command="{Binding UpdateAllJobsCommand}"
+                            Content="{materialDesign:PackIcon Kind=Update}"
+                            Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                            ToolTip="Update all jobs" />
+                    </materialDesign:Badged>
+                    <Button
+                        Command="{Binding UpdateAllJobsCancelCommand}"
+                        Content="{materialDesign:PackIcon Kind=Cancel}"
+                        Foreground="WhiteSmoke"
+                        ToolTip="Cancel">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Style.Triggers>
+                                    <DataTrigger Value="False" Binding="{Binding JobsUpdating }">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Separator />
+                    <ToggleButton
+                        Margin="5,0,0,0"
+                        Content="{materialDesign:PackIcon Kind=Eye}"
+                        IsChecked="{Binding ShowHidden}"
+                        materialDesign:ToggleButtonAssist.OnContent="{materialDesign:PackIcon Kind=EyeOff}"
+                        Style="{StaticResource MaterialDesignActionToggleButton}"
+                        ToolTip="Toggle Visibility" />
+                    <Button
+                        Margin="10,0,0,0"
+                        Command="{Binding SaveAndApplyFiltersCommand}"
+                        Content="{materialDesign:PackIcon Kind=ContentSave}"
+                        ToolTip="Save and Apply Visibilities" />
+                    <Separator />
+                </ToolBar>
+            </ToolBarTray>
+
+        </materialDesign:ColorZone>
+        <controls1:TextBoxWithDebounce
+            Grid.Row="1"
+            Margin="20,0"
+            DelayedText="{Binding FilterText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+            FontSize="20"
+            Foreground="WhiteSmoke"
+            materialDesign:HintAssist.Hint="Jobs Filter"
+            materialDesign:TextFieldAssist.HasClearButton="True"
+            Style="{StaticResource MaterialDesignFloatingHintTextBox}" />
+        <DataGrid
+            x:Name="uxJobsList"
+            Grid.Row ="2"
+            Margin="20"
+            HorizontalAlignment="Center"
+            AutoGenerateColumns="False"
+            CanUserAddRows="False"
+            IsReadOnly="true"
+            ItemsSource="{Binding Jobs, Mode=OneWay}"
+            VirtualizingPanel.ScrollUnit="Pixel">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Width="*" Header="Jobs list">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <controls1:JobListItem />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
