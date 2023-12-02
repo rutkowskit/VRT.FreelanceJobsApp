@@ -9,7 +9,7 @@ This application explores available freelance jobs. <br/>
 * Application data should be stored in a plain JSON file.
 
 
-![image info](./docs/pictures/App_MainView.png)
+![image info](./Docs/pictures/App_MainView.png)
 
 # VRT Freelance Jobs Explorer
 
@@ -59,26 +59,26 @@ Check available features in the next section of this document.
 ### Available toolbar options
 
 #### Get New Jobs
-![image info](./docs/pictures/GetNewJobsButton.png)
+![image info](./Docs/pictures/GetNewJobsButton.png)
 Use this option to receive all new job offers from configured providers
 
 #### Update All Jobs
-![image info](./docs/pictures/UpdateAllJobsButton.png)
+![image info](./Docs/pictures/UpdateAllJobsButton.png)
 Use this option to update cached Job offers with current data from configured providers
 
 #### Toggle Visible/Hidden jobs
-![image info](./docs/pictures/ToggleViewButton.png)
+![image info](./Docs/pictures/ToggleViewButton.png)
 Use this option to toggle between visible and hidden job offers
 
 #### Save job visibilities
-![image info](./docs/pictures/SaveJobsButton.png)
+![image info](./Docs/pictures/SaveJobsButton.png)
 Save the changed visibility of job offers. 
 You should use this option after you toggle visibility of any job offer on the list.
 It will store your changes in the cache.
 
 ### Job list filtering
 You can filter jobs using a filter textbox.
-![image info](./docs/pictures/FilterTextBox.png)
+![image info](./Docs/pictures/FilterTextBox.png)
 Insert the phrases that interest you, separated by spaces.
 Example: 
 
