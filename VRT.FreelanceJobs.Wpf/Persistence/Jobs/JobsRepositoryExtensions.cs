@@ -8,9 +8,17 @@ internal static class JobsRepositoryExtensions
     public static int UpdateExistingJobs(this IJobsRepository repository,
         IReadOnlyCollection<Job> newJobsData)
     {
+        if (newJobsData.Count == 0)
+        {
+            return 0;
+        }
+        var minJobId = newJobsData.Min(j => j.Id);
         var query = from dbJob in repository.Jobs
-                    join newJob in newJobsData on (dbJob.Id, dbJob.SourceName) equals (newJob.Id, newJob.SourceName)
+                    where dbJob.Id.CompareTo(minJobId) >= 0
+                    join newJob in newJobsData on (dbJob.Id, dbJob.SourceName) equals (newJob.Id, newJob.SourceName) into gnj
+                    from newJob in gnj.DefaultIfEmpty(Job.AsExpired(dbJob))
                     select (Current: dbJob, NewJob: newJob);
+
         var updatesCount = 0;
         query.ToList().ForEach(j =>
         {
@@ -103,7 +111,6 @@ internal static class JobsRepositoryExtensions
 
         var toRemove = repository.Jobs
             .Where(j => j.OfferDueDate == null || j.OfferDueDate.CompareTo(today) < 0)
-            .Where(j => j.IsNew)
             .ToList();
         toRemove.ForEach(j => repository.Jobs.Remove(j));
         return toRemove.Count;

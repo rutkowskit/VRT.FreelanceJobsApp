@@ -4,9 +4,9 @@ using CSharpFunctionalExtensions;
 using System.Collections.Immutable;
 using Useme.Clients.Wpf.Persistence.Jobs;
 using VRT.FreelanceJobs.Wpf.Abstractions.Jobs;
-using VRT.FreelanceJobs.Wpf.Persistence.Jobs;
 using VRT.FreelanceJobs.Wpf.Helpers;
 using VRT.FreelanceJobs.Wpf.Mvvm;
+using VRT.FreelanceJobs.Wpf.Persistence.Jobs;
 
 namespace VRT.FreelanceJobs.Wpf;
 
@@ -86,9 +86,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         var totalJobsUpdated = 0;
         JobsUpdating = true;
         UpdatedJobsCount = null;
+        var fromDate = DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd");
         foreach (var service in _jobServices)
         {
-            var fromDate = DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd");
             var request = new GetJobsRequest(fromDate);
             await service
                 .GetJobs(request, cancellationToken)

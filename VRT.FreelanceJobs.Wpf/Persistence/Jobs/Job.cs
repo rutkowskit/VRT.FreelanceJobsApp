@@ -4,6 +4,17 @@ namespace Useme.Clients.Wpf.Persistence.Jobs;
 
 public sealed class Job
 {
+    public static Job AsExpired(Job job)
+    {
+        return new Job()
+        {
+            Id = job.Id,
+            JobTitle = job.JobTitle,
+            SourceName = job.SourceName,
+            AddedTimestampMs = job.AddedTimestampMs,
+            OfferDueDate = null
+        };
+    }
     required public string Id { get; init; }
     required public string SourceName { get; init; }
     required public string JobTitle { get; set; }
