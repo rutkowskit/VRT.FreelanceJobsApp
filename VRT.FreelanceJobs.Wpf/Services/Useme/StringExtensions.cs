@@ -16,11 +16,11 @@ internal static class StringExtensions
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(htmlString);
         var jobsDiv = htmlDoc.DocumentNode.SelectSingleNode("//div[@class='jobs']");
-        var jobs = jobsDiv.SelectNodes("div[@class='job']");
+        var jobs = jobsDiv.SelectNodes("article[@class='job']");
         foreach (var jobDiv in jobs)
         {
             var jobLink = jobDiv.SelectSingleNode(".//a[contains(@class,'job__title-link')]");
-            var footer = jobDiv.SelectSingleNode(".//div[@class='job__footer']/div");
+            var footer = jobDiv.SelectSingleNode(".//footer");
             var job = new Job()
             {
                 Id = jobLink.GetId(),
@@ -31,9 +31,9 @@ internal static class StringExtensions
                 OfferDueDate = jobDiv.SelectSingleNode(".//div[@class[contains(.,'job__header-details--date')]]/span[2]").TrimInnerText().ToPolishDate(),
                 ContentShort = jobDiv.SelectSingleNode(".//div[@class[contains(.,'job__content')]]/p").TrimInnerText(),
                 Category = footer?.SelectSingleNode("./div[@class='job__category']/a/p").TrimInnerText(),
-                Budget = footer?.SelectSingleNode("./div[@class='job__budget']/span[2]").TrimInnerText(),
+                Budget = footer?.SelectSingleNode("./div[@class='job__budget']/span[1]").TrimInnerText(),
                 Skills = (footer
-                    ?.SelectNodes("./div[@class='job__skills']/div[2]")
+                    ?.SelectNodes("./div[@class='job__skills']")
                     ?.Where(e => e is not null)
                     ?.Select(e => e.TrimInnerText() ?? "")
                     ?.Where(e => string.IsNullOrWhiteSpace(e) == false)
@@ -50,7 +50,7 @@ internal static class StringExtensions
         var dateParts = date?.Split('.');
         return dateParts switch
         {
-            [var day, var month, var year] => $"20{year}-{month}-{day}",
+        [var day, var month, var year] => $"20{year}-{month}-{day}",
             _ => null //invalid date or alredy closed
         };
     }
