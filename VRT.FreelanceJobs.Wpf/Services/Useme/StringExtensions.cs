@@ -47,10 +47,29 @@ internal static class StringExtensions
     }
     private static string? ToPolishDate(this string? date)
     {
+        return date.ToPolishDateFromDescription()
+            ?? date.ToPolishDateByDay();
+    }
+
+    private static string? ToPolishDateFromDescription(this string? dateDescription)
+    {
+        var match = Regex.Match(dateDescription ?? "", @"(?<days>\d+)\s+d", RegexOptions.IgnoreCase);
+        if (match.Success is false)
+        {
+            return null;
+        }
+        var days = int.Parse(match.Groups["days"].Value);
+        var dueDay = DateTimeOffset.UtcNow.AddDays(days);
+        return dueDay.ToString("yyyy-MM-dd");
+
+    }
+    private static string? ToPolishDateByDay(this string? date)
+    {
         var dateParts = date?.Split('.');
         return dateParts switch
         {
-        [var day, var month, var year] => $"20{year}-{month}-{day}",
+            { Length: 0 } => null,
+            [var day, var month, var year] => $"20{year}-{month}-{day}",
             _ => null //invalid date or alredy closed
         };
     }
