@@ -58,11 +58,11 @@ internal static class JobsRepositoryExtensions
             .Select(s => s.Id)
             .ToHashSet();
 
-        var toAdd = newJobs.Where(j => existingIds.Contains(j.Id) is false).ToList();
-        if (toAdd.Count == 0)
-        {
-            return 0;
-        }
+        var toAdd = newJobs
+            .Where(j => existingIds.Contains(j.Id) is false)
+            .Distinct()
+            .ToList();
+
         toAdd.ForEach(j =>
         {
             j.IsNew = true;

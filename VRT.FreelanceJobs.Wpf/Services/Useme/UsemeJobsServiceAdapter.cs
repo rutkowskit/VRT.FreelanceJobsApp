@@ -44,7 +44,7 @@ internal sealed class UsemeJobsServiceAdapter : IJobsService
         {
             SourceName = UsemeOptions.SourceName,
             Request = request,
-            Data = newJobs.OrderByDescending(j => j.Id).ToArray()
+            Data = [.. newJobs.Distinct().OrderByDescending(j => j.Id)]
         };
         return result;
     }

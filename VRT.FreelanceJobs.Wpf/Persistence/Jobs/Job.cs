@@ -2,7 +2,7 @@
 
 namespace Useme.Clients.Wpf.Persistence.Jobs;
 
-public sealed class Job
+public sealed class Job : IEquatable<Job>
 {
     public static Job AsExpired(Job job)
     {
@@ -15,6 +15,7 @@ public sealed class Job
             OfferDueDate = null
         };
     }
+
     required public string Id { get; init; }
     required public string SourceName { get; init; }
     required public string JobTitle { get; set; }
@@ -32,4 +33,14 @@ public sealed class Job
     [JsonIgnore]
     public bool IsDirty { get; set; }
 
+    public bool Equals(Job? other)
+    {
+        return other switch
+        {
+            null => false,
+            _ => Id == other.Id && SourceName == other.SourceName
+        };
+    }
+    public override bool Equals(object? obj) => Equals(obj as Job);
+    public override int GetHashCode() => $"{Id}_{SourceName}".GetHashCode();
 }
