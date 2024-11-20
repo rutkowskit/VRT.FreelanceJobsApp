@@ -1,8 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
-using Useme.Clients.Wpf.Persistence.Jobs;
 using Useme.Clients.Wpf.Services.Upwork;
 using VRT.FreelanceJobs.Wpf.Abstractions.Jobs;
 using VRT.FreelanceJobs.Wpf.Options;
+using VRT.FreelanceJobs.Wpf.Persistence.Jobs;
 
 namespace VRT.FreelanceJobs.Wpf.Services.Upwork;
 

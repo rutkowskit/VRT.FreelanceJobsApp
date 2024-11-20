@@ -1,7 +1,7 @@
 ﻿using HtmlAgilityPack;
 using System.Text.RegularExpressions;
-using Useme.Clients.Wpf.Persistence.Jobs;
 using VRT.FreelanceJobs.Wpf.Options;
+using VRT.FreelanceJobs.Wpf.Persistence.Jobs;
 
 namespace VRT.FreelanceJobs.Wpf.Services.Upwork;
 
@@ -50,7 +50,7 @@ internal static class StringExtensions
         var dateParts = date?.Split('.');
         return dateParts switch
         {
-            [var day, var month, var year] => $"20{year}-{month}-{day}",
+        [var day, var month, var year] => $"20{year}-{month}-{day}",
             _ => null //invalid date or alredy closed
         };
     }

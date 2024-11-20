@@ -1,10 +1,11 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using System.Windows.Threading;
 
 namespace VRT.FreelanceJobs.Wpf.Controls;
 
-public sealed class TextBoxWithDebounce : TextBox
+[DependencyPropertyGenerator.DependencyProperty<int>("DelayTimeMilliseconds", DefaultValue = DefaultDelayTimeMilliseconds)]
+[DependencyPropertyGenerator.DependencyProperty<string>("DelayedText", DefaultBindingMode = DependencyPropertyGenerator.DefaultBindingMode.TwoWay)]
+public sealed partial class TextBoxWithDebounce : TextBox
 {
     private const int DefaultDelayTimeMilliseconds = 600;
     private readonly DispatcherTimer _timer;
@@ -14,27 +15,6 @@ public sealed class TextBoxWithDebounce : TextBox
         _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(DefaultDelayTimeMilliseconds) };
         _timer.Tick += OnTimerTick;
     }
-
-    public int DelayTimeMilliseconds
-    {
-        get { return (int)GetValue(DelayTimeMillisecondsProperty); }
-        set { SetValue(DelayTimeMillisecondsProperty, value); }
-    }
-
-    public static readonly DependencyProperty DelayTimeMillisecondsProperty =
-        DependencyProperty.Register(nameof(DelayTimeMilliseconds), typeof(int), typeof(TextBoxWithDebounce), new PropertyMetadata(DefaultDelayTimeMilliseconds));
-
-
-    public string DelayedText
-    {
-        get { return (string)GetValue(DelayedTextProperty); }
-        set { SetValue(DelayedTextProperty, value); }
-    }
-
-    public static readonly DependencyProperty DelayedTextProperty =
-        DependencyProperty.Register(nameof(DelayedText), typeof(string), typeof(TextBoxWithDebounce),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
-
     protected override void OnTextChanged(TextChangedEventArgs e)
     {
         _timer.Stop();

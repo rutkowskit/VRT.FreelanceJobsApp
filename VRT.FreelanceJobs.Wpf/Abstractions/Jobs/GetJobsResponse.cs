@@ -1,4 +1,4 @@
-﻿using Useme.Clients.Wpf.Persistence.Jobs;
+﻿using VRT.FreelanceJobs.Wpf.Persistence.Jobs;
 
 namespace VRT.FreelanceJobs.Wpf.Abstractions.Jobs
 {

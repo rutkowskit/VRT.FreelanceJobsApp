@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using CSharpFunctionalExtensions;
 using System.Collections.Immutable;
-using Useme.Clients.Wpf.Persistence.Jobs;
 using VRT.FreelanceJobs.Wpf.Abstractions.Jobs;
 using VRT.FreelanceJobs.Wpf.Helpers;
 using VRT.FreelanceJobs.Wpf.Mvvm;

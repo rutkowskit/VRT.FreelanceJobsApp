@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Useme.Clients.Wpf.Persistence.Jobs;
+namespace VRT.FreelanceJobs.Wpf.Persistence.Jobs;
 
 public sealed class Job : IEquatable<Job>
 {

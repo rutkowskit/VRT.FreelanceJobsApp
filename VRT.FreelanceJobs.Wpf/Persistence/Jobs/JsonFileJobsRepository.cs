@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Text;
 using System.Text.Json;
-using Useme.Clients.Wpf.Persistence.Jobs;
 using VRT.FreelanceJobs.Wpf.Helpers;
 
 namespace VRT.FreelanceJobs.Wpf.Persistence.Jobs;

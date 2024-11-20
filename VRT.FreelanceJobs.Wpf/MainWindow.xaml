@@ -8,6 +8,7 @@
     xmlns:local="clr-namespace:VRT.FreelanceJobs.Wpf"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:jobs="clr-namespace:VRT.FreelanceJobs.Wpf.Persistence.Jobs"
     Width="1200"
     Height="850"
     mc:Ignorable="d"
@@ -15,7 +16,8 @@
     FontSize="18"
     Loaded="OnWindowLoaded"
     Title="Freelance Jobs"
-    WindowStartupLocation="CenterScreen">
+    WindowStartupLocation="CenterScreen"
+    Style="{StaticResource MaterialDesignWindow}">
     <Grid Background="{StaticResource MaterialDesignBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -135,7 +137,7 @@
             <DataGrid.Columns>
                 <DataGridTemplateColumn Width="*" Header="Jobs list">
                     <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
+                        <DataTemplate DataType="jobs:Job">
                             <controls1:JobListItem />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

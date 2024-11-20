@@ -1,7 +1,7 @@
 ﻿using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Navigation;
-using Useme.Clients.Wpf.Persistence.Jobs;
+using VRT.FreelanceJobs.Wpf.Persistence.Jobs;
 
 namespace VRT.FreelanceJobs.Wpf.Controls
 {

@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using Useme.Clients.Wpf.Persistence.Jobs;
 
 namespace VRT.FreelanceJobs.Wpf.Persistence.Jobs;
 
@@ -41,6 +40,7 @@ internal static class JobsRepositoryExtensions
             | current.Update(j => j.Category, newJob.Category)
             | current.Update(j => j.Budget, newJob.Budget)
             | current.Update(j => j.Skills, newJob.Skills);
+        current.Update(j => j.IsDirty, result);
         return result;
     }
     public static int AddMissingJobs(this IJobsRepository repository,
@@ -66,6 +66,7 @@ internal static class JobsRepositoryExtensions
         toAdd.ForEach(j =>
         {
             j.IsNew = true;
+            j.IsDirty = true;
             j.AddedTimestampMs = currentTimestamp;
             repository.Jobs.Add(j);
         });
@@ -98,8 +99,7 @@ internal static class JobsRepositoryExtensions
         var notNewEntryTimestamp = currentTimestamp - TimeSpan.FromDays(1).TotalMilliseconds;
 
         var toUncheck = repository.Jobs
-            .Where(j => j.AddedTimestampMs <= notNewEntryTimestamp)
-            .Where(j => j.IsNew)
+            .Where(j => j.IsNew && j.AddedTimestampMs <= notNewEntryTimestamp)
             .ToList();
         toUncheck
             .ForEach(j => j.IsNew = false);

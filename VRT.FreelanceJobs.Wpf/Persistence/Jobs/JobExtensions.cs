@@ -1,7 +1,6 @@
 ﻿using System.Collections.Frozen;
 using System.Linq.Expressions;
 using System.Reflection;
-using Useme.Clients.Wpf.Persistence.Jobs;
 
 namespace VRT.FreelanceJobs.Wpf.Persistence.Jobs;
 

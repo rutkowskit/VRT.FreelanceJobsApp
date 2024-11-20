@@ -1,7 +1,7 @@
 ﻿using HtmlAgilityPack;
 using System.Text.RegularExpressions;
-using Useme.Clients.Wpf.Persistence.Jobs;
 using VRT.FreelanceJobs.Wpf.Options;
+using VRT.FreelanceJobs.Wpf.Persistence.Jobs;
 
 namespace VRT.FreelanceJobs.Wpf.Services.Useme;
 

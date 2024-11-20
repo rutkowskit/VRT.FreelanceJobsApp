@@ -5,6 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:jobs="clr-namespace:VRT.FreelanceJobs.Wpf.Persistence.Jobs" xmlns:wpf="clr-namespace:VRT.FreelanceJobs.Wpf" 
+    d:DataContext="{d:DesignInstance Type=jobs:Job}"
     mc:Ignorable="d"
     d:DesignHeight="345.708"
     d:DesignWidth="625.215"
@@ -12,9 +14,9 @@
     TextOptions.TextFormattingMode="Ideal"    
     Padding="10">
     <materialDesign:Card
-        Margin="10"            
+        Margin="0"            
         Background="#111111"                
-        Padding="5">
+        Padding="10">
         <Grid ClipToBounds="False">
             <Grid.RowDefinitions>
                 <RowDefinition x:Name="TitleRowHeader" Height="Auto" />
