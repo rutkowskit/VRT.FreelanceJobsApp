@@ -48,7 +48,8 @@
                     <TextBlock                    
                         Foreground="#a9b9d0"
                         Style="{StaticResource MaterialDesignHeadline4TextBlock}"
-                        TextWrapping="Wrap">
+                        TextWrapping="Wrap"
+                        ToolTip="{Binding FullOfferDetailsUrl}">
                         <Hyperlink NavigateUri="{Binding FullOfferDetailsUrl}" RequestNavigate="Hyperlink_RequestNavigate">
                             <Run Text="{Binding JobTitle}" Foreground="#a9b9d0"></Run>                            
                         </Hyperlink>
