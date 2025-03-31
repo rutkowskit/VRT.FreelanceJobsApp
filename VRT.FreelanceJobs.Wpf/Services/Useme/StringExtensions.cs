@@ -34,10 +34,10 @@ internal static class StringExtensions
                 Budget = footer?.SelectSingleNode("./div[@class='job__budget']/span[1]").TrimInnerText(),
                 Skills = (footer
                     ?.SelectNodes("./div[@class='job__skills']")
-                    ?.Where(e => e is not null)
-                    ?.Select(e => e.TrimInnerText() ?? "")
-                    ?.Where(e => string.IsNullOrWhiteSpace(e) == false)
-                    ?.ToArray()) ?? Array.Empty<string>()
+                    .Where(e => e is not null)
+                    .Select(e => e.TrimInnerText() ?? "")
+                    .Where(e => string.IsNullOrWhiteSpace(e) == false)
+                    .ToArray()) ?? Array.Empty<string>()
             };
             if (string.IsNullOrWhiteSpace(job.Id) is false && string.IsNullOrWhiteSpace(job.OfferDueDate) is false)
             {

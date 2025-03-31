@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CSharpFunctionalExtensions;
-using System.Collections.Immutable;
 using VRT.FreelanceJobs.Wpf.Abstractions.Jobs;
 using VRT.FreelanceJobs.Wpf.Helpers;
 using VRT.FreelanceJobs.Wpf.Mvvm;
@@ -67,7 +66,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             await service
                 .GetJobs(request, cancellationToken)
                 .Map(jobs => _jobsRepository.AddMissingJobs(jobs.Data, service.SourceName))
-                .Tap(addedJobsCnt => totalJobsAdded += addedJobsCnt);
+                .Tap(addedJobsCnt => totalJobsAdded += addedJobsCnt)
+                .ConfigureAwait(true);
         }
         var hasChanges = totalJobsAdded > 0 || Jobs.Any(j => j.IsDirty);
         NewJobsCount = totalJobsAdded > 0 ? totalJobsAdded : null;
@@ -92,7 +92,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             await service
                 .GetJobs(request, cancellationToken)
                 .Map(jobs => _jobsRepository.UpdateExistingJobs(jobs.Data))
-                .Tap(changesCount => totalJobsUpdated += changesCount);
+                .Tap(changesCount => totalJobsUpdated += changesCount)
+                .ConfigureAwait(true);
         }
         JobsUpdating = false;
         var hasChanges = totalJobsUpdated > 0;
@@ -106,10 +107,10 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void ApplyFilters()
     {
-        Jobs = ApplyFilters(_allJobs)
+        var jobsQuery = ApplyFilters(_allJobs)
             .OrderByDescending(s => s.AddedTimestampMs)
-            .ThenByDescending(s => s.Id)
-            .ToImmutableArray();
+            .ThenByDescending(s => s.Id);
+        Jobs = [.. jobsQuery];
     }
     [RelayCommand]
     private void SaveAndApplyFilters()
@@ -130,17 +131,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         var filterParts = FilterText?.Split() ?? [];
         var filtered = string.IsNullOrWhiteSpace(FilterText)
             ? jobs?.ToArray()
-            : jobs?.Where(p => new[] { p.Category, p.JobTitle, p.JobTitle, p.ContentShort, p.SourceName }.Concat(p.Skills).ToArray().MatchesAll(filterParts)).ToArray();
+            : jobs?.Where(p => GetFilterValues(p).MatchesAll(filterParts)).ToArray();
 
         return filtered ?? [];
     }
 
-    partial void OnShowHiddenChanged(bool oldValue, bool newValue)
-    {
-        ApplyFilters();
-    }
-    partial void OnFilterTextChanged(string? value)
-    {
-        ApplyFilters();
-    }
+    partial void OnShowHiddenChanged(bool oldValue, bool newValue) => ApplyFilters();
+    partial void OnFilterTextChanged(string? value) => ApplyFilters();
+
+    private static string?[] GetFilterValues(Job job)
+        => [job.Category, job.JobTitle, job.JobTitle, job.ContentShort, job.SourceName, .. job.Skills];
 }

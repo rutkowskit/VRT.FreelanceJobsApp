@@ -1,5 +1,4 @@
 ﻿using CSharpFunctionalExtensions;
-using Useme.Clients.Wpf.Services.Useme;
 using VRT.FreelanceJobs.Wpf.Abstractions.Jobs;
 using VRT.FreelanceJobs.Wpf.Options;
 using VRT.FreelanceJobs.Wpf.Persistence.Jobs;
@@ -32,7 +31,7 @@ internal sealed class UsemeJobsServiceAdapter : IJobsService
             }
             var minDueDate = request.DateFrom ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
 
-            var jobs = await GetJobsForCategory(category, minDueDate, cancellationToken);
+            var jobs = await GetJobsForCategory(category, minDueDate, cancellationToken).ConfigureAwait(false);
             newJobs.AddRange(jobs);
         }
 
@@ -59,7 +58,7 @@ internal sealed class UsemeJobsServiceAdapter : IJobsService
         while (cancellation.IsCancellationRequested is false)
         {
             var page = currentPage == 0 ? null : currentPage.ToString();
-            var result = await _serivce.GetJobEntries(category, page);
+            var result = await _serivce.GetJobEntries(category, page).ConfigureAwait(false);
             var jobs = result.Content.ToUsemeJobs(_options.BaseUri).ToArray();
             if (jobs.Length == 0)
             {

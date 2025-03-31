@@ -3,7 +3,6 @@ using Refit;
 using System.IO;
 using System.Text;
 using System.Windows;
-using Useme.Clients.Wpf.Services.Useme;
 using VRT.FreelanceJobs.Wpf.Abstractions.Jobs;
 using VRT.FreelanceJobs.Wpf.Helpers;
 using VRT.FreelanceJobs.Wpf.Persistence.Jobs;
