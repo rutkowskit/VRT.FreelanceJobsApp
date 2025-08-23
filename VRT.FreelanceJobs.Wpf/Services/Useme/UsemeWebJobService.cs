@@ -103,7 +103,7 @@ internal sealed class UsemeWebJobService : IUsemeJobsService, IAsyncDisposable
 
         await usemePage.GotoAsync(url, new PageGotoOptions()
         {
-            WaitUntil = WaitUntilState.NetworkIdle
+            WaitUntil = WaitUntilState.DOMContentLoaded
         });
         return usemePage;
     }
