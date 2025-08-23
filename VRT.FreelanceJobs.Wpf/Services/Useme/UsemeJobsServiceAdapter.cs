@@ -69,8 +69,8 @@ internal sealed class UsemeJobsServiceAdapter : IJobsService
             var result = await _serivce.GetJobEntries(category, page).ConfigureAwait(false);
             if (result.IsSuccessful is false)
             {
-                var uri = result.RequestMessage?.RequestUri?.ToString();
-                _logger.LogError("Get from {Url} Error. {HttpStatuCode}, {HttpError}", uri, result.StatusCode, result.Error.ToString());
+                var uri = result.RequestMessage?.RequestUri?.ToString() ?? "unknown";
+                _logger.LogError("Get from {Url} Error. {HttpStatuCode}, {HttpError}", uri, result.StatusCode, result.Error?.ToString() ?? "unknown");
                 break;
             }
             var jobs = result.Content.ToUsemeJobs(_options.BaseUri).ToArray();

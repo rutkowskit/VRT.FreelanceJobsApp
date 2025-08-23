@@ -5,4 +5,5 @@ public sealed class UsemeOptions
     public const string SourceName = "Useme";
     required public string BaseUri { get; init; }
     public string[] Categories { get; init; } = [];
+    public bool ShowBrowserWindow { get; init; }
 }

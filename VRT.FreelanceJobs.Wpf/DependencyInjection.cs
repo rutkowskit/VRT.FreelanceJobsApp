@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using VRT.FreelanceJobs.Wpf.Workers;
 
 namespace VRT.FreelanceJobs.Wpf;
 internal static partial class DependencyInjection
@@ -9,7 +10,10 @@ internal static partial class DependencyInjection
     {
         services
             .AddAppConfiguration()
-            .AddSerilogLogging();
+            .AddSerilogLogging()
+            .AddSingleton<BrowserDownloaderService>()
+            .AddSingleton<IBrowserDownloaderService>(p => p.GetRequiredService<BrowserDownloaderService>())
+            .AddHostedService(p => p.GetRequiredService<BrowserDownloaderService>());
         return services;
     }
 

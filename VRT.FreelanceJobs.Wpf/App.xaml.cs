@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.IO;
-using System.Text;
 using System.Windows;
 using VRT.FreelanceJobs.Wpf.Abstractions.Jobs;
 using VRT.FreelanceJobs.Wpf.Persistence.Jobs;
@@ -8,23 +9,26 @@ using VRT.FreelanceJobs.Wpf.Services.Useme;
 
 namespace VRT.FreelanceJobs.Wpf;
 
-public partial class App : Application
+public sealed partial class App : Application, IDisposable
 {
-    private const string AppSettingsFileName = "appsettings.json";
-    private static IServiceProvider? _services;
-    public static IServiceProvider Services => _services ??= InitServices();
+    private IHost? _host;
+    private IHost CurrentHost => _host ??= InitHost();
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     protected override void OnStartup(StartupEventArgs e)
     {
-
-        MainWindow = Services.GetRequiredService<MainWindow>();
+        CurrentHost.Start();
+        MainWindow = CurrentHost.Services.GetRequiredService<MainWindow>();
         MainWindow.Show();
     }
-    private static ServiceProvider InitServices()
+
+    private static IHost InitHost()
     {
         Directory.SetCurrentDirectory(AppContext.BaseDirectory);
-        var services = new ServiceCollection();
-        var settings = LoadAppSettings();
+        var builder = Host.CreateApplicationBuilder();
+        var services = builder.Services;
+        var settings = LoadAppSettings(builder.Configuration);
+
         services
             .AddInfrastructure()
             .AddSingleton<IJobsRepository, JsonFileRepository>()
@@ -35,45 +39,28 @@ public partial class App : Application
                 .AddTransient<IJobsService, UsemeJobsServiceAdapter>()
                 .AddSingleton<IUsemeJobsService, UsemeWebJobService>()
                 ;
-            //.AddRefitClient<IUsemeJobsService>()
-            //.ConfigureHttpClient(client =>
-            //{
-            //    client.BaseAddress = new Uri(settings.Useme.BaseUri);
-            //    client.Timeout = TimeSpan.FromSeconds(15);
-            //});
         }
-        //Not yet implemented !
-        //if (settings.Upwork is not null)
-        //{
-        //    services
-        //        .AddTransient<IJobsService, UpworkJobsServiceAdapter>()
-        //        .AddRefitClient<IUpworkJobsService>()
-        //        .ConfigureHttpClient(client =>
-        //        {
-        //            client.BaseAddress = new Uri(settings.Upwork.BaseUri);
-        //            client.Timeout = TimeSpan.FromSeconds(15);
-        //        });
-        //}
         services.AddSingleton<MainWindow>();
         services.AddTransient<MainWindowViewModel>();
 
-        return services.BuildServiceProvider();
+
+        return builder.Build();
     }
-    private static AppSettings LoadAppSettings()
+    private static AppSettings LoadAppSettings(IConfiguration configuration)
     {
-        if (File.Exists(AppSettingsFileName) == false)
-        {
-            return AppSettings.Empty;
-        }
-        try
-        {
-            var json = File.ReadAllText(AppSettingsFileName, Encoding.UTF8);
-            var result = System.Text.Json.JsonSerializer.Deserialize<AppSettings>(json);
-            return result ?? AppSettings.Empty;
-        }
-        catch
-        {
-            return AppSettings.Empty;
-        }
+        var settings = new AppSettings();
+        configuration.Bind(settings);
+        return settings;
+    }
+
+    public void Dispose()
+    {
+        _cancellationTokenSource.Cancel(); //this should stop all background services
+
+        _host?.Dispose();
+        //(Services.GetService<IEnumerable<IHostedService>>() ?? [])
+        //    .OfType<IDisposable>()
+        //    .ToList()
+        //    .ForEach(d => d.Dispose());
     }
 }
