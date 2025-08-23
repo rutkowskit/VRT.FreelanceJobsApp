@@ -3,12 +3,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Playwright;
 using Refit;
 using System.Net.Http;
+using VRT.FreelanceJobs.Wpf.Helpers;
 using VRT.FreelanceJobs.Wpf.Options;
 using VRT.FreelanceJobs.Wpf.Workers;
 
 namespace VRT.FreelanceJobs.Wpf.Services.Useme;
 
-internal sealed class UsemeWebJobService : IUsemeJobsService, IAsyncDisposable
+internal sealed class UsemeWebJobService : IUsemeJobsService, IAsyncDisposable, IDisposable
 {
     private static readonly BrowserTypeLaunchOptions LaunchOptions = new()
     {
@@ -25,7 +26,6 @@ internal sealed class UsemeWebJobService : IUsemeJobsService, IAsyncDisposable
     private readonly UsemeOptions _options;
     private readonly IBrowserDownloaderService _browserDownloaderService;
     private readonly ILogger<UsemeWebJobService> _logger;
-    private IBrowser? _browser;
     private IPlaywright? _playwright;
 
     public UsemeWebJobService(
@@ -42,50 +42,36 @@ internal sealed class UsemeWebJobService : IUsemeJobsService, IAsyncDisposable
 
     public string SourceName => UsemeOptions.SourceName;
 
-    public async Task<ApiResponse<string>> GetJobEntries(string category, string? page = null)
+    public async Task<ApiResponse<string>> GetJobEntries(string category, string? page = null, CancellationToken cancellationToken = default)
     {
         var url = $"{_options.BaseUri}/pl/jobs/category/{category}/?page={page}";
-
+        await using var cleanup = new DisposablesSet();
         var result = await Result.Success()
-            .TapTry(() => _browserDownloaderService.EnsureInitialized(CancellationToken.None))
+            .TapTry(() => _browserDownloaderService.EnsureInitialized(cancellationToken))
             .MapTry(OpenHeadlessBrowser)
+            .Tap(browser => browser.AsyncDisposeWith(cleanup))
             .MapTry(browser => OpenPage(browser, url))
             .TapTry(WaitForJobsDiv)
-            .MapTry(GetHtmlAndClose)
+            .MapTry(GetHtml)
             .Map(html => html.ToSuccessApiResponse())
             .TapError(err => _logger.LogError("Error occured when fetching jobs from useme. {Message}", err))
             .Compensate(err => err.ToInternalApiError());
-        //await Result.Try(() => browser.CloseAsync());
         return result.Value; //always success here
     }
-    private async Task<string> GetHtmlAndClose(IPage page)
-    {
-        var html = await page.ContentAsync();
-        await page.CloseAsync();
-        return html;
-    }
-    private async Task WaitForJobsDiv(IPage page)
-    {
-        await page.WaitForSelectorAsync("div.jobs");
-    }
+    private Task<string> GetHtml(IPage page)
+        => page.ContentAsync();
+
+    private Task WaitForJobsDiv(IPage page)
+        => page.WaitForSelectorAsync("div.jobs");
+
     private async Task<IBrowser> OpenHeadlessBrowser()
     {
-        if (_browser is not null && _browser.IsConnected)
-        {
-            return _browser;
-        }
         try
         {
             await _browserSemaphore.WaitAsync();
-            if (_browser is not null)
-            {
-                await _browser.DisposeAsync();
-                _browser = null;
-            }
             await _browserDownloaderService.EnsureInitialized(CancellationToken.None);
             var playwright = _playwright ??= await Playwright.CreateAsync();
-            _browser = await playwright.Chromium.LaunchAsync(LaunchOptions);
-            return _browser;
+            return await playwright.Chromium.LaunchAsync(LaunchOptions);
         }
         finally
         {
@@ -108,13 +94,16 @@ internal sealed class UsemeWebJobService : IUsemeJobsService, IAsyncDisposable
         return usemePage;
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
-        if (_browser is not null)
-        {
-            await _browser.DisposeAsync();
-        }
+        Dispose();
+        return ValueTask.CompletedTask;
+    }
+
+    public void Dispose()
+    {
         _playwright?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
 file static class ObjectExtensions

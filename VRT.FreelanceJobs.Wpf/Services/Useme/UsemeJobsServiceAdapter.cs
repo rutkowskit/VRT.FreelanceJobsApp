@@ -28,20 +28,14 @@ internal sealed class UsemeJobsServiceAdapter : IJobsService
     public async Task<Result<GetJobsResponse>> GetJobs(GetJobsRequest request,
         CancellationToken cancellationToken = default)
     {
+        var minDueDate = request.DateFrom ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
 
-        var newJobs = new List<Job>();
+        var jobsInCategory = _options.Categories
+            .Select(c => GetJobsForCategory(c, minDueDate, cancellationToken))
+            .ToList();
 
-        foreach (var category in _options.Categories)
-        {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                break;
-            }
-            var minDueDate = request.DateFrom ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
-
-            var jobs = await GetJobsForCategory(category, minDueDate, cancellationToken).ConfigureAwait(false);
-            newJobs.AddRange(jobs);
-        }
+        await Task.WhenAll(jobsInCategory);
+        var newJobs = jobsInCategory.SelectMany(j => j.Result ?? []);
 
         if (cancellationToken.IsCancellationRequested)
         {
@@ -66,7 +60,7 @@ internal sealed class UsemeJobsServiceAdapter : IJobsService
         while (cancellation.IsCancellationRequested is false)
         {
             var page = currentPage == 0 ? null : currentPage.ToString();
-            var result = await _serivce.GetJobEntries(category, page).ConfigureAwait(false);
+            var result = await _serivce.GetJobEntries(category, page, cancellation).ConfigureAwait(false);
             if (result.IsSuccessful is false)
             {
                 var uri = result.RequestMessage?.RequestUri?.ToString() ?? "unknown";
