@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using Microsoft.Extensions.Logging;
 using VRT.FreelanceJobs.Wpf.Abstractions.Jobs;
 using VRT.FreelanceJobs.Wpf.Options;
 using VRT.FreelanceJobs.Wpf.Persistence.Jobs;
@@ -9,10 +10,17 @@ internal sealed class UsemeJobsServiceAdapter : IJobsService
 {
     private readonly IUsemeJobsService _serivce;
     private readonly UsemeOptions _options;
-    public UsemeJobsServiceAdapter(AppSettings appSettings, IUsemeJobsService? service = null)
+    private readonly ILogger<UsemeJobsServiceAdapter> _logger;
+
+    public UsemeJobsServiceAdapter(
+        AppSettings appSettings,
+        ILogger<UsemeJobsServiceAdapter> logger,
+        IUsemeJobsService? service = null)
     {
-        _options = appSettings?.Useme ?? throw new ArgumentNullException(nameof(appSettings.Useme));
+        ArgumentNullException.ThrowIfNull(appSettings?.Useme);
+        _options = appSettings.Useme;
         _serivce = service ?? Refit.RestService.For<IUsemeJobsService>(_options.BaseUri);
+        _logger = logger;
     }
 
     public string SourceName => UsemeOptions.SourceName;
@@ -59,6 +67,12 @@ internal sealed class UsemeJobsServiceAdapter : IJobsService
         {
             var page = currentPage == 0 ? null : currentPage.ToString();
             var result = await _serivce.GetJobEntries(category, page).ConfigureAwait(false);
+            if (result.IsSuccessful is false)
+            {
+                var uri = result.RequestMessage?.RequestUri?.ToString();
+                _logger.LogError("Get from {Url} Error. {HttpStatuCode}, {HttpError}", uri, result.StatusCode, result.Error.ToString());
+                break;
+            }
             var jobs = result.Content.ToUsemeJobs(_options.BaseUri).ToArray();
             if (jobs.Length == 0)
             {

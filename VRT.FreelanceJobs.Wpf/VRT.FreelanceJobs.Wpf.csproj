@@ -10,7 +10,17 @@
 		<ApplicationIcon>appicon.ico</ApplicationIcon>
 		<RootNamespace>VRT.FreelanceJobs.Wpf</RootNamespace>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="appsettings.json" CopyToPublishDirectory="Never">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</Content>		
+	</ItemGroup>
+
 
 	<ItemGroup>
 		<Content Include="appicon.ico" />
@@ -25,9 +35,16 @@
 		</PackageReference>
 		<PackageReference Include="HtmlAgilityPack" />
 		<PackageReference Include="MaterialDesignThemes" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+		<PackageReference Include="PuppeteerSharp" />
 		<PackageReference Include="Refit" />
 		<PackageReference Include="Refit.HttpClientFactory" />
+		<PackageReference Include="Serilog.Extensions.Logging" />
+		<PackageReference Include="Serilog.Settings.Configuration" />
+		<PackageReference Include="Serilog.Sinks.File" />
+		<PackageReference Include="Serilog.Sinks.Seq" />
 	</ItemGroup>
 
 	<ItemGroup>

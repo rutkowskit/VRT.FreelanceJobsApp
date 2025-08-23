@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Refit;
 using System.IO;
 using System.Text;
 using System.Windows;
 using VRT.FreelanceJobs.Wpf.Abstractions.Jobs;
-using VRT.FreelanceJobs.Wpf.Helpers;
 using VRT.FreelanceJobs.Wpf.Persistence.Jobs;
 using VRT.FreelanceJobs.Wpf.Services.Useme;
 
@@ -18,27 +16,31 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        Directory.SetCurrentDirectory(DirectoryHelpers.GetExecutingAssemblyDirectory());
+
         MainWindow = Services.GetRequiredService<MainWindow>();
         MainWindow.Show();
     }
-    private static IServiceProvider InitServices()
+    private static ServiceProvider InitServices()
     {
+        Directory.SetCurrentDirectory(AppContext.BaseDirectory);
         var services = new ServiceCollection();
         var settings = LoadAppSettings();
         services
+            .AddInfrastructure()
             .AddSingleton<IJobsRepository, JsonFileRepository>()
             .AddSingleton(p => settings);
         if (settings.Useme is not null)
         {
             services
                 .AddTransient<IJobsService, UsemeJobsServiceAdapter>()
-                .AddRefitClient<IUsemeJobsService>()
-                .ConfigureHttpClient(client =>
-                {
-                    client.BaseAddress = new Uri(settings.Useme.BaseUri);
-                    client.Timeout = TimeSpan.FromSeconds(15);
-                });
+                .AddSingleton<IUsemeJobsService, UsemeWebJobService>()
+                ;
+            //.AddRefitClient<IUsemeJobsService>()
+            //.ConfigureHttpClient(client =>
+            //{
+            //    client.BaseAddress = new Uri(settings.Useme.BaseUri);
+            //    client.Timeout = TimeSpan.FromSeconds(15);
+            //});
         }
         //Not yet implemented !
         //if (settings.Upwork is not null)
