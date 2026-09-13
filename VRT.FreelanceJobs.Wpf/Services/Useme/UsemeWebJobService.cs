@@ -11,16 +11,12 @@ namespace VRT.FreelanceJobs.Wpf.Services.Useme;
 
 internal sealed class UsemeWebJobService : IUsemeJobsService, IAsyncDisposable, IDisposable
 {
-    private static readonly BrowserTypeLaunchOptions LaunchOptions = new()
-    {
-        Headless = true,
-        Args = new[]
-            {
-                "--no-sandbox", // Often needed for headless stability (use cautiously in production)
-                "--disable-setuid-sandbox",
-                "--disable-blink-features=AutomationControlled" // Helps evade detection
-            }
-    };
+    private static readonly string[] LaunchArgs =
+    [
+        "--no-sandbox", // Often needed for headless stability (use cautiously in production)
+        "--disable-setuid-sandbox",
+        "--disable-blink-features=AutomationControlled" // Helps evade detection
+    ];
     private SemaphoreSlim _browserSemaphore = new SemaphoreSlim(1, 1);
 
     private readonly UsemeOptions _options;
@@ -38,7 +34,6 @@ internal sealed class UsemeWebJobService : IUsemeJobsService, IAsyncDisposable, 
         ArgumentNullException.ThrowIfNull(appSettings?.Useme);
         _options = appSettings.Useme;
         _playwrightOptions = appSettings.Playwright;
-        LaunchOptions.Headless = _options.ShowBrowserWindow is false;
         _browserDownloaderService = browserDownloaderService;
         _logger = logger;
     }
@@ -50,7 +45,6 @@ internal sealed class UsemeWebJobService : IUsemeJobsService, IAsyncDisposable, 
         var url = $"{_options.BaseUri}/pl/jobs/category/{category}/?page={page}";
         await using var cleanup = new DisposablesSet();
         var result = await Result.Success()
-            .TapTry(() => _browserDownloaderService.EnsureInitialized(cancellationToken))
             .MapTry(OpenBrowser)
             .Tap(browser => RegisterBrowserCleanup(browser, cleanup))
             .MapTry(browser => OpenPage(browser, url, cleanup))
@@ -76,16 +70,23 @@ internal sealed class UsemeWebJobService : IUsemeJobsService, IAsyncDisposable, 
             {
                 return await GetOrConnectCdpBrowser();
             }
-
             await _browserDownloaderService.EnsureInitialized(CancellationToken.None);
             var playwright = _playwright ??= await Playwright.CreateAsync();
-            return await playwright.Chromium.LaunchAsync(LaunchOptions);
+            var launchOptions = CreateLaunchOptions();
+            _logger.LogInformation("Launching Playwright Chromium (Headless={Headless})", launchOptions.Headless);
+            return await playwright.Chromium.LaunchAsync(launchOptions);
         }
         finally
         {
             _browserSemaphore.Release();
         }
     }
+
+    private BrowserTypeLaunchOptions CreateLaunchOptions() => new()
+    {
+        Headless = _options.ShowBrowserWindow is false,
+        Args = LaunchArgs
+    };
 
     private async Task<IBrowser> GetOrConnectCdpBrowser()
     {

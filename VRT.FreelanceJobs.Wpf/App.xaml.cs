@@ -27,7 +27,7 @@ public sealed partial class App : Application, IDisposable
         Directory.SetCurrentDirectory(AppContext.BaseDirectory);
         var builder = Host.CreateApplicationBuilder();
         var services = builder.Services;
-        var settings = LoadAppSettings(builder.Configuration);
+        var settings = LoadAppSettings(DependencyInjection.GetConfiguration());
 
         services
             .AddInfrastructure()
