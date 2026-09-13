@@ -2,10 +2,12 @@
 using Microsoft.Extensions.Logging;
 
 namespace VRT.FreelanceJobs.Wpf.Workers;
-internal class BrowserDownloaderService(ILogger<BrowserDownloaderService> logger) : BackgroundService, IBrowserDownloaderService
+internal class BrowserDownloaderService(
+    AppSettings appSettings,
+    ILogger<BrowserDownloaderService> logger) : BackgroundService, IBrowserDownloaderService
 {
     private SemaphoreSlim _semaphore = new(1, 1);
-    private bool _isInitialized;
+    private bool _isInitialized = appSettings.Playwright?.HasCdpEndpoint is true;
 
     public async Task EnsureInitialized(CancellationToken stoppingToken)
     {
@@ -29,6 +31,12 @@ internal class BrowserDownloaderService(ILogger<BrowserDownloaderService> logger
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        if (_isInitialized)
+        {
+            logger.LogInformation("Skipping Playwright browser install because a CDP endpoint is configured");
+            return;
+        }
+
         while (stoppingToken.IsCancellationRequested is false)
         {
 

@@ -9,4 +9,5 @@ public sealed class AppSettings
     public readonly static AppSettings Empty = new();
     public UsemeOptions? Useme { get; init; }
     public UpworkOptions? Upwork { get; init; }
+    public PlaywrightOptions? Playwright { get; init; }
 }
