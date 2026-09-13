@@ -17,8 +17,7 @@ internal sealed class UsemeWebJobService : IUsemeJobsService, IAsyncDisposable, 
         "--disable-setuid-sandbox",
         "--disable-blink-features=AutomationControlled" // Helps evade detection
     ];
-    private SemaphoreSlim _browserSemaphore = new SemaphoreSlim(1, 1);
-
+    private readonly SemaphoreSlim _browserSemaphore = new(1, 1);
     private readonly UsemeOptions _options;
     private readonly PlaywrightOptions? _playwrightOptions;
     private readonly IBrowserDownloaderService _browserDownloaderService;
