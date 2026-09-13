@@ -180,7 +180,8 @@ file static class ObjectExtensions
     {
         var response = new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError)
         {
-            Content = new StringContent(error)
+            Content = new StringContent(error),
+            RequestMessage = new HttpRequestMessage(HttpMethod.Get, "about:blank")
         };
 
         return new ApiResponse<string>(response, error, new());
@@ -190,7 +191,8 @@ file static class ObjectExtensions
     {
         var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK)
         {
-            Content = new StringContent(obj)
+            Content = new StringContent(obj),
+            RequestMessage = new HttpRequestMessage(HttpMethod.Get, "about:blank")
         };
 
         return new ApiResponse<string>(response, obj, new());

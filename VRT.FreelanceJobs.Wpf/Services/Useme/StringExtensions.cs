@@ -16,10 +16,18 @@ internal static class StringExtensions
         var htmlDoc = new HtmlDocument();
         htmlDoc.LoadHtml(htmlString);
         var jobsDiv = htmlDoc.DocumentNode.SelectSingleNode("//div[@class='jobs']");
-        var jobs = jobsDiv.SelectNodes("article[@class='job']");
+        var jobs = jobsDiv?.SelectNodes("article[@class='job']");
+        if (jobs is null || jobsDiv is null)
+        {
+            yield break;
+        }
         foreach (var jobDiv in jobs)
         {
-            var jobLink = jobDiv.SelectSingleNode(".//a[contains(@class,'job__title-link')]");
+            var jobLink = jobDiv?.SelectSingleNode(".//a[contains(@class,'job__title-link')]");
+            if (jobLink is null || jobDiv is null)
+            {
+                continue;
+            }
             var footer = jobDiv.SelectSingleNode(".//footer");
             var job = new Job()
             {
@@ -27,17 +35,17 @@ internal static class StringExtensions
                 SourceName = UsemeOptions.SourceName,
                 JobTitle = jobLink.TrimInnerText()!,
                 FullOfferDetailsUrl = $"{baseUri}{jobLink.Attributes["href"]?.Value?.Trim()}",
-                OffersCount = jobDiv.SelectSingleNode(".//div[@class[contains(.,'job__header-details--offers')]]/span[2]").TrimInnerText(),
-                OfferDueDate = jobDiv.SelectSingleNode(".//div[@class[contains(.,'job__header-details--date')]]/span[2]").TrimInnerText().ToPolishDate(),
-                ContentShort = jobDiv.SelectSingleNode(".//div[@class[contains(.,'job__content')]]/p").TrimInnerText(),
-                Category = footer?.SelectSingleNode("./div[@class='job__category']/a/p").TrimInnerText(),
-                Budget = footer?.SelectSingleNode("./div[@class='job__budget']/span[1]").TrimInnerText(),
+                OffersCount = jobDiv.SelectSingleNode(".//div[@class[contains(.,'job__header-details--offers')]]/span[2]")?.TrimInnerText(),
+                OfferDueDate = jobDiv.SelectSingleNode(".//div[@class[contains(.,'job__header-details--date')]]/span[2]")?.TrimInnerText().ToPolishDate(),
+                ContentShort = jobDiv.SelectSingleNode(".//div[@class[contains(.,'job__content')]]/p")?.TrimInnerText(),
+                Category = footer?.SelectSingleNode("./div[@class='job__category']/a/p")?.TrimInnerText(),
+                Budget = footer?.SelectSingleNode("./div[@class='job__budget']/span[1]")?.TrimInnerText(),
                 Skills = (footer
                     ?.SelectNodes("./div[@class='job__skills']")
-                    .Where(e => e is not null)
+                    ?.Where(e => e is not null)
                     .Select(e => e.TrimInnerText() ?? "")
                     .Where(e => string.IsNullOrWhiteSpace(e) == false)
-                    .ToArray()) ?? Array.Empty<string>()
+                    .ToArray()) ?? []
             };
             if (string.IsNullOrWhiteSpace(job.Id) is false && string.IsNullOrWhiteSpace(job.OfferDueDate) is false)
             {
@@ -79,7 +87,7 @@ internal static class StringExtensions
     }
     private static string GetId(this HtmlNode node)
     {
-        var attr = node.Attributes["href"].Value;
+        var attr = node.Attributes["href"]?.Value;
         var match = Regex.Match(attr ?? "", @"^.*?,(?<id>\d+)[/\s\r\n]*$", RegexOptions.NonBacktracking);
         return match?.Groups["id"].Value ?? "";
     }

@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Playwright;
 using VRT.FreelanceJobs.Wpf.Workers;
 
 namespace VRT.FreelanceJobs.Wpf;
+
 internal static partial class DependencyInjection
 {
     private static IConfiguration? AppConfig;
@@ -30,7 +32,8 @@ internal static partial class DependencyInjection
         }
         var builder = new ConfigurationBuilder()
                .SetBasePath(AppContext.BaseDirectory)
-               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+               .AddUserSecrets<Program>();
 
         AppConfig = builder.Build();
         return AppConfig;
